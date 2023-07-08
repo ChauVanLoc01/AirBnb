@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model book_room {
+  br_id         Int         @id @default(autoincrement())
+  re_id         Int
+  user_id       Int
+  book_date     DateTime    @db.Date
+  checkout_date DateTime    @db.Date
+  amount_people Int
+  created       DateTime?   @default(now()) @db.Timestamp(0)
+  real_estate   real_estate @relation(fields: [re_id], references: [re_id], onDelete: NoAction, onUpdate: NoAction, map: "book_room_ibfk_1")
+  user          user        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "book_room_ibfk_2")
+
+  @@index([re_id], map: "re_id")
+  @@index([user_id], map: "user_id")
+}
+
+model comment {
+  cmt_id      Int         @id @default(autoincrement())
+  re_id       Int
+  user_id     Int
+  content     String?     @db.VarChar(500)
+  created     DateTime?   @default(now()) @db.Timestamp(0)
+  updated     DateTime?   @db.Timestamp(0)
+  user        user        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_1")
+  real_estate real_estate @relation(fields: [re_id], references: [re_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_2")
+
+  @@index([re_id], map: "re_id")
+  @@index([user_id], map: "user_id")
+}
+
+model location {
+  location_id   Int     @id @default(autoincrement())
+  location_name String  @db.VarChar(100)
+  city          String  @db.VarChar(100)
+  country       String  @db.VarChar(100)
+  image         String? @db.VarChar(100)
+}
+
+model real_estate {
+  re_id           Int              @id @default(autoincrement())
+  user_id         Int
+  name            String           @db.VarChar(200)
+  type            real_estate_type
+  images          Json
+  location_id     Int
+  capacity        Int
+  room_amount     Int
+  bed_amount      Int
+  bathroom_amount Int
+  description     String           @db.VarChar(2000)
+  price           Int
+  washingmachine  Boolean
+  iron            Boolean
+  television      Boolean
+  airconditioner  Boolean
+  wifi            Boolean
+  kitchen         Boolean
+  parkinglot      Boolean
+  pool            Boolean
+  created         DateTime?        @default(now()) @db.Timestamp(0)
+  updated         DateTime?        @db.Timestamp(0)
+  book_room       book_room[]
+  comment         comment[]
+  user            user             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "real_estate_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model user {
+  user_id     Int           @id @default(autoincrement())
+  full_name   String        @db.VarChar(100)
+  email       String        @db.VarChar(100)
+  password    String        @db.VarChar(100)
+  cccd        String?       @db.VarChar(15)
+  phone       String        @db.VarChar(15)
+  birthday    DateTime?     @db.Date
+  gender      user_gender
+  role        user_role
+  created     DateTime?     @default(now()) @db.Timestamp(0)
+  updated     DateTime?     @db.Timestamp(0)
+  book_room   book_room[]
+  comment     comment[]
+  real_estate real_estate[]
+}
+
+enum real_estate_type {
+  rooms
+  castles
+  beachfront
+  iconiccities
+  desert
+  omg
+  adapted
+  hanoks
+  amazingpools
+  lakefront
+  amazingviews
+}
+
+enum user_gender {
+  male
+  female
+  other
+}
+
+enum user_role {
+  user
+  admin
+  business
+}
